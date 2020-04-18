@@ -33,6 +33,7 @@ namespace DatingApp.API.Controllers
         //     return Ok(values);
         // }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetValues()
         {
