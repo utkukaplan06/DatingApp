@@ -7,6 +7,8 @@ import {
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 
+// HttpInterceptor client tarafındaki errorlerin hepsini tek bir yerden ele alabilmemizi sağlıyor.
+
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
   intercept(
