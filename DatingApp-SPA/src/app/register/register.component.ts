@@ -34,3 +34,5 @@ export class RegisterComponent implements OnInit {
     this.cancelRegister.emit(false);
   }
 }
+
+//deneme
