@@ -2,15 +2,16 @@ using System.Security.Cryptography;
 using API.Data;
 using API.DTOs;
 using API.Entities;
+using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    public class AccountController(AppDbContext context) : BaseApiController
+    public class AccountController(AppDbContext context, ITokenService tokenService) : BaseApiController
     {
         [HttpPost("register")] //api/account/register
-        public async Task<ActionResult<AppUser>> Register(RegisterDto registerDto)
+        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             if (await EmailExists(registerDto.Email))
             {
@@ -30,11 +31,17 @@ namespace API.Controllers
             context.Users.Add(user);
             await context.SaveChangesAsync();
             
-            return user;
+            return new UserDto
+            {
+                Id = user.Id.ToString(),
+                Email = user.Email,
+                DisplayName = user.DisplayName,
+                Token = tokenService.CreateToken(user)
+            };
         }
 
         [HttpPost("login")] //api/account/login
-        public async Task<ActionResult<AppUser>> Login(LoginDTO loginDto)
+        public async Task<ActionResult<UserDto>> Login(LoginDTO loginDto)
         {
             var user = await context.Users.FirstOrDefaultAsync(x => x.Email.ToLower() == loginDto.Email.ToLower());
 
@@ -49,7 +56,13 @@ namespace API.Controllers
                 if (computedHash[i] != user.PasswordHash[i]) return Unauthorized("Invalid email or password");
             }
 
-            return user;
+            return new UserDto
+            {
+                Id = user.Id.ToString(),
+                Email = user.Email,
+                DisplayName = user.DisplayName,
+                Token = tokenService.CreateToken(user)
+            };
         }
 
         private async Task<bool> EmailExists(string email)
